@@ -50,7 +50,7 @@ fi
 PICO_STDIO_USB_RESET_MAGIC_BAUD_RATE=1200
 if type stty
 then
-    SER_PATH=$(find /dev/serial/by-id/ -name "*E660D4A0A721832A*" | head -n1)
+    SER_PATH=$(find /dev/serial/by-id/ -name "*${2}*" | head -n1)
     if [ "$SER_PATH" != "" ]
     then
         echo "Attempting to force reset via magic baud rate"
