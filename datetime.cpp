@@ -1,4 +1,10 @@
-/* SPDX-License-Identifier: MIT
+/**
+ * pico-sunrise - A sunrise clock for RP2040 based microcontrollers
+ *
+ * @file
+ * @copyright
+ * @parblock
+ * SPDX-License-Identifier: MIT
  *
  * SPDX-FileCopyrightText: Copyright (c) 2025 Ian Hangartner <icrashstuff at outlook dot com>
  *
@@ -19,8 +25,9 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
+ * @endparblock
  *
- * Date/Time handling structures/functions
+ * @brief Date/Time handling structures/functions
  *
  * Inspired by Adafruit's RTClib datetime structures, but the implementation is mine
  */

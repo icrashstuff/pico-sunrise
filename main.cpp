@@ -1,4 +1,9 @@
-/* SPDX-License-Identifier: MIT
+/**
+ * pico-sunrise - A sunrise clock for RP2040 based microcontrollers
+ *
+ * @file
+ * @copyright
+ * SPDX-License-Identifier: MIT
  *
  * SPDX-FileCopyrightText: Copyright (c) 2025 Ian Hangartner <icrashstuff at outlook dot com>
  *
@@ -19,6 +24,12 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
+ *
+ * @brief Entry point of pico-sunrise
+ */
+/**
+ * @mainpage
+ * A sunrise clock for RP2040 based microcontrollers
  */
 #include "pico/stdlib.h"
 #include <stdint.h>
