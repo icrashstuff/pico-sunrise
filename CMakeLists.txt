@@ -28,8 +28,11 @@ project(my_project C CXX ASM)
 pico_sdk_init()
 
 add_executable(pico-sunrise
-    main.c
+    main.cpp
+    datetime.cpp
 )
+
+target_compile_definitions(pico-sunrise PUBLIC PICO_INCLUDE_RTC_DATETIME=0)
 
 target_compile_options(pico-sunrise PUBLIC -Wall -Wextra)
 target_compile_definitions(pico-sunrise PUBLIC -DUSBD_MANUFACTURER="Ian Hangartner")
