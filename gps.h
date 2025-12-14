@@ -37,6 +37,8 @@
 
 #include "config.h"
 
+#include "loop_measurer.h"
+
 /**
  * Initializes GPS, then runs the GPS main loop
  */
@@ -81,6 +83,8 @@ struct gps_data_t
 
     char nmea_in_progress[512]; /**< Sentence currently being received, may be empty */
     size_t nmea_in_progress_len; /**< Length of `nmea_in_progress` */
+
+    loop_measure_t perf;
 };
 
 extern gps_data_t gps_data;

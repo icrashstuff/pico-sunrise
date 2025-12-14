@@ -27,50 +27,28 @@
  * DEALINGS IN THE SOFTWARE.
  * @endparblock
  *
- * @brief Program configuration
+ * @brief Average loop time/Loops per second structure
  */
-#pragma once
+#include "loop_measurer.h"
+#include "config.h"
 
-/**
- * UART port associated with @ref GPS_UART_TX_PIN and @ref GPS_UART_RX_PIN
- * @sa GPS_UART_TX_PIN
- * @sa GPS_UART_RX_PIN
- */
-#define GPS_UART_ID uart1
-/** GPS Serial Baudrate */
-#define GPS_BAUD_RATE 9600
-/** GPS Serial Data bits */
-#define GPS_DATA_BITS 8
-/** GPS Serial Stop bits */
-#define GPS_STOP_BITS 1
-/** GPS Serial Parity setting */
-#define GPS_PARITY UART_PARITY_NONE
-/** Echo all characters received by GPS UART */
-#define GPS_ECHO false
+#include "hardware/timer.h"
 
-/** GPIO pin for GPS UART transmit @sa GPS_UART_ID */
-#define GPS_UART_TX_PIN 4
-/** GPIO pin for GPS UART receive @sa GPS_UART_ID*/
-#define GPS_UART_RX_PIN 5
+void loop_measure_t::end_loop()
+{
+    uint64_t cur_time = time_us_64();
+    if (last_push == ~0ull)
+        last_push = cur_time;
 
-/** Timezone offset during daylight savings time */
-#define TIMEZONE_OFFSET_DT timespan_t(0, -8, 0, 0)
-/** Timezone offset during standard time */
-#define TIMEZONE_OFFSET_ST timespan_t(0, -9, 0, 0)
+    loop_times[loop_times_pos++] = cur_time - last_push;
+    loop_times_pos %= LOOP_AVERAGE_SAMPLE_COUNT;
+    last_push = cur_time;
 
-/**
- * Changes time offsets so that sunrise blending can easily be tested
- *
- * @warning Disables GPS time sync
- */
-#define SUNRISE_TESTING 0
+    microseconds_t new_average_loop_time = 0;
+    for (uint32_t i = 0; i < LOOP_AVERAGE_SAMPLE_COUNT; i++)
+        new_average_loop_time += loop_times[i];
+    new_average_loop_time /= microseconds_t(LOOP_AVERAGE_SAMPLE_COUNT);
 
-/**
- * Minimum number of microseconds between each successive printing of program status
- */
-#define STATUS_PRINT_INTERVAL (500 * 1000)
-
-/**
- * Number of samples to use for average loop times
- */
-#define LOOP_AVERAGE_SAMPLE_COUNT 256
+    average_loop_time = new_average_loop_time;
+    loops_per_second = double(MICROSECONDS_PER_SECOND) / double(average_loop_time);
+}

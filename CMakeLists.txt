@@ -30,6 +30,7 @@ pico_sdk_init()
 add_executable(pico-sunrise
     main.cpp
     gps.cpp
+    loop_measurer.cpp
     datetime.cpp
     unix_time.cpp
 )

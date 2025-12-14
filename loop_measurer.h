@@ -27,50 +27,21 @@
  * DEALINGS IN THE SOFTWARE.
  * @endparblock
  *
- * @brief Program configuration
+ * @brief Average loop time/Loops per second measuring structure
  */
 #pragma once
 
-/**
- * UART port associated with @ref GPS_UART_TX_PIN and @ref GPS_UART_RX_PIN
- * @sa GPS_UART_TX_PIN
- * @sa GPS_UART_RX_PIN
- */
-#define GPS_UART_ID uart1
-/** GPS Serial Baudrate */
-#define GPS_BAUD_RATE 9600
-/** GPS Serial Data bits */
-#define GPS_DATA_BITS 8
-/** GPS Serial Stop bits */
-#define GPS_STOP_BITS 1
-/** GPS Serial Parity setting */
-#define GPS_PARITY UART_PARITY_NONE
-/** Echo all characters received by GPS UART */
-#define GPS_ECHO false
+/* For microseconds_t */
+#include "unix_time.h"
 
-/** GPIO pin for GPS UART transmit @sa GPS_UART_ID */
-#define GPS_UART_TX_PIN 4
-/** GPIO pin for GPS UART receive @sa GPS_UART_ID*/
-#define GPS_UART_RX_PIN 5
+#include "config.h"
 
-/** Timezone offset during daylight savings time */
-#define TIMEZONE_OFFSET_DT timespan_t(0, -8, 0, 0)
-/** Timezone offset during standard time */
-#define TIMEZONE_OFFSET_ST timespan_t(0, -9, 0, 0)
-
-/**
- * Changes time offsets so that sunrise blending can easily be tested
- *
- * @warning Disables GPS time sync
- */
-#define SUNRISE_TESTING 0
-
-/**
- * Minimum number of microseconds between each successive printing of program status
- */
-#define STATUS_PRINT_INTERVAL (500 * 1000)
-
-/**
- * Number of samples to use for average loop times
- */
-#define LOOP_AVERAGE_SAMPLE_COUNT 256
+struct loop_measure_t
+{
+    void end_loop();
+    uint64_t last_push = ~0;
+    microseconds_t loop_times[LOOP_AVERAGE_SAMPLE_COUNT];
+    microseconds_t average_loop_time;
+    uint32_t loop_times_pos;
+    float loops_per_second;
+};

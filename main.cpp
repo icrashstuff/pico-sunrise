@@ -111,7 +111,8 @@ int main()
     multicore_launch_core1(gps_thread_func);
 #endif
 
-    static uint64_t last_status_time = 0;
+    uint64_t last_status_time = 0;
+    loop_measure_t perf = {};
 
     while (true)
     {
@@ -166,6 +167,8 @@ int main()
         status("Firmware build id:   %s\n", gps_data.firmware_build_id);
         status("Firmware internal 1: %s\n", gps_data.firmware_internal_1);
         status("Firmware internal 2: %s\n", gps_data.firmware_internal_2);
+        status("Avg. loop time:   %lld us\n", gps_data.perf.average_loop_time);
+        status("loops_per_second: %.3f\n", gps_data.perf.loops_per_second);
         status("NMEA Parsing: %s\n", gps_data.nmea_in_progress);
         status("NMEA Last:    %s\n", gps_data.nmea_last_full);
 
@@ -180,7 +183,7 @@ int main()
         if (full_power_time <= now && now < off_forced_time)
             sunrise_factor = 1.0;
 
-        status("\n======> Timing status\n");
+        status("\n======> Sunrise status\n");
         status("Current time:     %s\n", now.print_to_buffer(buf, arraysizeof(buf)));
         status("Midnight:         %s\n", midnight.print_to_buffer(buf, arraysizeof(buf)));
         status("start_time:       %s\n", start_time.print_to_buffer(buf, arraysizeof(buf)));
@@ -188,11 +191,11 @@ int main()
         status("off_allowed_time: %s\n", off_allowed_time.print_to_buffer(buf, arraysizeof(buf)));
         status("off_forced_time:  %s\n", off_forced_time.print_to_buffer(buf, arraysizeof(buf)));
         status("sunrise_factor:   %f\n", sunrise_factor);
+        status("Avg. loop time:   %lld us\n", perf.average_loop_time);
+        status("loops_per_second: %.3f\n", perf.loops_per_second);
 
-        const uint64_t loop_end_time = time_us_64();
-        const uint64_t loop_elapsed = loop_end_time - loop_start_time;
-
-        sleep_ms(10);
+        perf.end_loop();
+        sleep_ms(1);
     }
     return 0;
 }

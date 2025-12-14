@@ -233,6 +233,8 @@ void gps_loop()
         if (c == '\n')
             end_of_sentence();
     }
+
+    gps_data.perf.end_loop();
 }
 
 void gps_thread_func()
@@ -240,5 +242,8 @@ void gps_thread_func()
     gps_init();
 
     while (1)
+    {
         gps_loop();
+        sleep_us(1);
+    }
 }
