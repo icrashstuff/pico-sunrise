@@ -82,9 +82,18 @@ static void check_dst()
     verify_time(datetime_t((1741518000) * MICROSECONDS_PER_SECOND).get_tz_corrected(offset_st, offset_dt), datetime_t(2025, 3, 9, 3, 0, 0));
 }
 
-static __printflike(1, 0) int status_dummy_func(const char* fmt, ...) { return -1; }
+static int status_impl_dummy_func(const char* fmt, va_list vlist) { return 0; }
 
-static decltype(printf)* status = printf;
+static int (*status_impl)(const char* fmt, va_list vlist) = vprintf;
+
+static __printflike(1, 0) int status(const char* fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    int r = status_impl(fmt, args);
+    va_end(args);
+    return r;
+}
 
 int main()
 {
@@ -110,11 +119,11 @@ int main()
 
         if (loop_start_time / STATUS_PRINT_INTERVAL != last_status_time / STATUS_PRINT_INTERVAL)
         {
-            status = printf;
+            status_impl = vprintf;
             last_status_time = loop_start_time;
         }
         else
-            status = status_dummy_func;
+            status_impl = status_impl_dummy_func;
 
         check_dst();
 
