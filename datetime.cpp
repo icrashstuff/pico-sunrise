@@ -22,7 +22,7 @@
  *
  * Date/Time handling structures/functions
  *
- * Inspired by Adafruit's RTClib datetime structures
+ * Inspired by Adafruit's RTClib datetime structures, but the implementation is mine
  */
 #include "datetime.h"
 
