@@ -29,6 +29,7 @@ pico_sdk_init()
 
 add_executable(pico-sunrise
     main.cpp
+    gps.cpp
     datetime.cpp
 )
 
@@ -39,6 +40,7 @@ target_compile_definitions(pico-sunrise PUBLIC -DUSBD_MANUFACTURER="Ian Hangartn
 target_compile_definitions(pico-sunrise PUBLIC -DUSBD_PRODUCT="pico-sunrise")
 
 target_link_libraries(pico-sunrise pico_stdlib)
+target_link_libraries(pico-sunrise pico_multicore)
 
 if (TARGET tinyusb_device)
     pico_enable_stdio_usb(pico-sunrise 1)
