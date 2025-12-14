@@ -82,6 +82,10 @@ static void check_dst()
     verify_time(datetime_t((1741518000) * MICROSECONDS_PER_SECOND).get_tz_corrected(offset_st, offset_dt), datetime_t(2025, 3, 9, 3, 0, 0));
 }
 
+static __printflike(1, 0) int status_dummy_func(const char* fmt, ...) { return -1; }
+
+static decltype(printf)* status = printf;
+
 int main()
 {
     init_unix_time();
@@ -98,10 +102,20 @@ int main()
     multicore_launch_core1(gps_thread_func);
 #endif
 
-    // while(1) tight_loop_contents();
+    static uint64_t last_status_time = 0;
 
     while (true)
     {
+        const uint64_t loop_start_time = time_us_64();
+
+        if (loop_start_time / STATUS_PRINT_INTERVAL != last_status_time / STATUS_PRINT_INTERVAL)
+        {
+            status = printf;
+            last_status_time = loop_start_time;
+        }
+        else
+            status = status_dummy_func;
+
         check_dst();
 
         const datetime_t now = datetime_t::get_current_utc().get_tz_corrected(offset_st, offset_dt);
@@ -129,32 +143,47 @@ int main()
 
         char buf[64];
 
-        printf("\n\n\n======> Program info\n");
-        printf("Name: pico-sunrise\n");
+        status("\n\n\n======> Program info\n");
+        status("Name: pico-sunrise\n");
 
-        printf("\n======> License text (pico-sunrise)\n");
-        stdio_puts(license_text_pico_sunrise);
+        status("\n======> License text (pico-sunrise)\n");
+        status("%s", license_text_pico_sunrise);
 
-        printf("\n======> License text (pico-sdk)\n");
-        stdio_puts(license_text_pico_sdk);
+        status("\n======> License text (pico-sdk)\n");
+        status("%s", license_text_pico_sdk);
 
-        printf("\n======> GPS Status\n");
-        printf("Firmware release:    %s\n", gps_data.firmware_release_str);
-        printf("Firmware build id:   %s\n", gps_data.firmware_build_id);
-        printf("Firmware internal 1: %s\n", gps_data.firmware_internal_1);
-        printf("Firmware internal 2: %s\n", gps_data.firmware_internal_2);
-        printf("NMEA Parsing: %s\n", gps_data.nmea_in_progress);
-        printf("NMEA Last:    %s\n", gps_data.nmea_last_full);
+        status("\n======> GPS Status\n");
+        status("Firmware release:    %s\n", gps_data.firmware_release_str);
+        status("Firmware build id:   %s\n", gps_data.firmware_build_id);
+        status("Firmware internal 1: %s\n", gps_data.firmware_internal_1);
+        status("Firmware internal 2: %s\n", gps_data.firmware_internal_2);
+        status("NMEA Parsing: %s\n", gps_data.nmea_in_progress);
+        status("NMEA Last:    %s\n", gps_data.nmea_last_full);
 
-        printf("\n======> Timing status\n");
-        printf("Current time:     %s\n", now.print_to_buffer(buf, arraysizeof(buf)));
-        printf("Midnight:         %s\n", midnight.print_to_buffer(buf, arraysizeof(buf)));
-        printf("start_time:       %s\n", start_time.print_to_buffer(buf, arraysizeof(buf)));
-        printf("full_power_time:  %s\n", full_power_time.print_to_buffer(buf, arraysizeof(buf)));
-        printf("off_allowed_time: %s\n", off_allowed_time.print_to_buffer(buf, arraysizeof(buf)));
-        printf("off_forced_time:  %s\n", off_forced_time.print_to_buffer(buf, arraysizeof(buf)));
+        double sunrise_factor = -1.0;
 
-        sleep_ms(500);
+        if (start_time <= now && now < full_power_time)
+        {
+            double time_elapsed = now.to_microseconds_since_1970() - start_time.to_microseconds_since_1970();
+            double time_to_full = full_power_time.to_microseconds_since_1970() - start_time.to_microseconds_since_1970();
+            sunrise_factor = time_elapsed / time_to_full;
+        }
+        if (full_power_time <= now && now < off_forced_time)
+            sunrise_factor = 1.0;
+
+        status("\n======> Timing status\n");
+        status("Current time:     %s\n", now.print_to_buffer(buf, arraysizeof(buf)));
+        status("Midnight:         %s\n", midnight.print_to_buffer(buf, arraysizeof(buf)));
+        status("start_time:       %s\n", start_time.print_to_buffer(buf, arraysizeof(buf)));
+        status("full_power_time:  %s\n", full_power_time.print_to_buffer(buf, arraysizeof(buf)));
+        status("off_allowed_time: %s\n", off_allowed_time.print_to_buffer(buf, arraysizeof(buf)));
+        status("off_forced_time:  %s\n", off_forced_time.print_to_buffer(buf, arraysizeof(buf)));
+        status("sunrise_factor:   %f\n", sunrise_factor);
+
+        const uint64_t loop_end_time = time_us_64();
+        const uint64_t loop_elapsed = loop_end_time - loop_start_time;
+
+        sleep_ms(10);
     }
     return 0;
 }

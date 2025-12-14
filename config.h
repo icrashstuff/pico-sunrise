@@ -64,3 +64,8 @@
  * @warning Disables GPS time sync
  */
 #define SUNRISE_TESTING 0
+
+/**
+ * Minimum number of microseconds between each successive printing of program status
+ */
+#define STATUS_PRINT_INTERVAL (500 * 1000)
