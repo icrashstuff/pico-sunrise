@@ -102,6 +102,8 @@ void gps_init()
         sleep_ms(50);
     }
 
+    gps_data.next_config_sync = from_us_since_boot(0);
+
     gps_set_config();
 }
 
@@ -207,10 +209,10 @@ static void end_of_sentence()
 
 void gps_loop()
 {
-    if (gps_data.last_config_sync++ >> 20 != 0)
+    if (time_reached(gps_data.next_config_sync))
     {
         gps_set_config();
-        gps_data.last_config_sync = 0;
+        gps_data.next_config_sync = from_us_since_boot(time_us_64() + MICROSECONDS_PER_SECOND * 5);
     }
     while (uart_is_readable(GPS_UART_ID))
     {

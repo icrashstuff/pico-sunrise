@@ -143,7 +143,6 @@ int main()
         printf("Firmware build id:   %s\n", gps_data.firmware_build_id);
         printf("Firmware internal 1: %s\n", gps_data.firmware_internal_1);
         printf("Firmware internal 2: %s\n", gps_data.firmware_internal_2);
-        printf("Loops since config sync: %lu\n", gps_data.last_config_sync);
         printf("NMEA Parsing: %s\n", gps_data.nmea_in_progress);
         printf("NMEA Last:    %s\n", gps_data.nmea_last_full);
 
