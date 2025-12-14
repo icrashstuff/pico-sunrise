@@ -53,23 +53,6 @@
 
 #define arraysizeof(array) (sizeof(array) / sizeof(array[0]))
 
-/**
- * Set hardware clock
- *
- * @warning This will absolutely wreak havoc with any active delays
- */
-static void set_unix_time_us(uint64_t microseconds_seconds_since_1970)
-{
-    uint64_t new_val = microseconds_seconds_since_1970;
-    timer_hw_t* timer = PICO_DEFAULT_TIMER_INSTANCE();
-
-    uint32_t lo = new_val & 0xFFFFFFFFu;
-    uint32_t hi = new_val >> 32u;
-
-    timer->timelw = lo;
-    timer->timehw = hi;
-}
-
 static void verify_time(const datetime_t& a, const datetime_t& b)
 {
     if (a == b)
@@ -100,13 +83,15 @@ static void check_dst()
 
 int main()
 {
+    init_unix_time();
+
     stdio_init_all();
 
     const timespan_t offset_dt = TIMEZONE_OFFSET_DT;
     const timespan_t offset_st = TIMEZONE_OFFSET_ST;
 
     /* Reset to midnight 1970-1-11 (local time zone) */
-    set_unix_time_us(MICROSECONDS_PER_DAY * 10 - offset_st.to_microseconds_since_1970());
+    set_unix_time(MICROSECONDS_PER_DAY * 10 - offset_st.to_microseconds_since_1970());
 
 #if SUNRISE_TESTING == 0
     multicore_launch_core1(gps_thread_func);

@@ -130,22 +130,6 @@ static bool is_valid_nmea_sentence(const char* sentence, size_t len)
 
     return true;
 }
-/**
- * Set hardware clock
- *
- * @warning This will absolutely wreak havoc with any active delays
- */
-static void set_unix_time_us(uint64_t microseconds_seconds_since_1970)
-{
-    uint64_t new_val = microseconds_seconds_since_1970;
-    timer_hw_t* timer = PICO_DEFAULT_TIMER_INSTANCE();
-
-    uint32_t lo = new_val & 0xFFFFFFFFu;
-    uint32_t hi = new_val >> 32u;
-
-    timer->timelw = lo;
-    timer->timehw = hi;
-}
 
 static void end_of_sentence()
 {
@@ -172,7 +156,7 @@ static void end_of_sentence()
 
         t.microsecond *= 1000;
 
-        set_unix_time_us(t.to_microseconds_since_1970());
+        set_unix_time(t.to_microseconds_since_1970());
     }
 
     /* PMTK_DT_RELEASE - Firmware release information */

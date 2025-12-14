@@ -38,15 +38,9 @@
 #error "PICO_INCLUDE_RTC_DATETIME must be 0 to prevent potential typename conflicts"
 #endif
 
-#include <stdint.h>
 #include <stdlib.h>
 
-typedef int64_t microseconds_t;
-
-#define MICROSECONDS_PER_SECOND (microseconds_t(1000ll * 1000ll))
-#define MICROSECONDS_PER_MINUTE (microseconds_t(60ll * MICROSECONDS_PER_SECOND))
-#define MICROSECONDS_PER_HOUR (microseconds_t(60ll * MICROSECONDS_PER_MINUTE))
-#define MICROSECONDS_PER_DAY (microseconds_t(24ll * MICROSECONDS_PER_HOUR))
+#include "unix_time.h"
 
 struct timespan_t
 {

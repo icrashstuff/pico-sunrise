@@ -31,6 +31,7 @@ add_executable(pico-sunrise
     main.cpp
     gps.cpp
     datetime.cpp
+    unix_time.cpp
 )
 
 target_compile_definitions(pico-sunrise PUBLIC PICO_INCLUDE_RTC_DATETIME=0)

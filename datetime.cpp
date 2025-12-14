@@ -70,7 +70,7 @@ datetime_t::datetime_t(microseconds_t microseconds_since_1970)
         microsecond = MICROSECONDS_PER_SECOND + microsecond;
 }
 
-datetime_t datetime_t::get_current_utc() { return datetime_t(time_us_64()); }
+datetime_t datetime_t::get_current_utc() { return datetime_t(get_unix_time()); }
 
 microseconds_t datetime_t::to_microseconds_since_1970() const
 {
