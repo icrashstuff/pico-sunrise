@@ -35,7 +35,7 @@ add_executable(pico-sunrise
 
 target_compile_definitions(pico-sunrise PUBLIC PICO_INCLUDE_RTC_DATETIME=0)
 
-target_compile_options(pico-sunrise PUBLIC -Wall -Wextra)
+target_compile_options(pico-sunrise PUBLIC -Wall -Wextra -Wshadow)
 target_compile_definitions(pico-sunrise PUBLIC -DUSBD_MANUFACTURER="Ian Hangartner")
 target_compile_definitions(pico-sunrise PUBLIC -DUSBD_PRODUCT="pico-sunrise")
 
