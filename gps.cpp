@@ -27,7 +27,11 @@
  * DEALINGS IN THE SOFTWARE.
  * @endparblock
  *
- * @brief GPS time synchronization implementation
+ * @brief GPS time synchronization (Implementation)
+ *
+ * @bug Because @ref gps_write_nmea() calls @ref uart_write_blocking() some
+ *      packets from the device may be missed, however I don't feel like fixing
+ *      this because no important information is lost that won't get re-sent
  */
 
 #include "gps.h"
