@@ -30,10 +30,13 @@ pico_sdk_init()
 add_executable(pico-sunrise
     main.cpp
     gps.cpp
+    led.cpp
     loop_measurer.cpp
     datetime.cpp
     unix_time.cpp
 )
+
+pico_generate_pio_header(pico-sunrise ${CMAKE_CURRENT_SOURCE_DIR}/ws2812.pio OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/generated)
 
 target_compile_definitions(pico-sunrise PUBLIC PICO_INCLUDE_RTC_DATETIME=0)
 
@@ -41,8 +44,11 @@ target_compile_options(pico-sunrise PUBLIC -Wall -Wextra -Wshadow)
 target_compile_definitions(pico-sunrise PUBLIC -DUSBD_MANUFACTURER="Ian Hangartner")
 target_compile_definitions(pico-sunrise PUBLIC -DUSBD_PRODUCT="pico-sunrise")
 
-target_link_libraries(pico-sunrise pico_stdlib)
-target_link_libraries(pico-sunrise pico_multicore)
+target_link_libraries(pico-sunrise PRIVATE pico_stdlib)
+target_link_libraries(pico-sunrise PRIVATE pico_malloc)
+target_link_libraries(pico-sunrise PRIVATE pico_multicore)
+target_link_libraries(pico-sunrise PRIVATE hardware_pio)
+
 
 if (TARGET tinyusb_device)
     pico_enable_stdio_usb(pico-sunrise 1)

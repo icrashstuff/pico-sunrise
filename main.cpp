@@ -50,6 +50,7 @@
 #include "config.h"
 #include "datetime.h"
 #include "gps.h"
+#include "led.h"
 #include "license_text.h"
 
 #define arraysizeof(array) (sizeof(array) / sizeof(array[0]))
@@ -106,6 +107,8 @@ int main()
 
     /* Reset to midnight 1970-1-11 (local time zone) */
     set_unix_time(MICROSECONDS_PER_DAY * 10 - offset_st.to_microseconds_since_1970());
+
+    led_init(LED_IS_RGBW, LED_FREQUENCY, LED_GPIO);
 
 #if SUNRISE_TESTING == 0
     multicore_launch_core1(gps_thread_func);
@@ -172,7 +175,7 @@ int main()
         status("NMEA Parsing: %s\n", gps_data.nmea_in_progress);
         status("NMEA Last:    %s\n", gps_data.nmea_last_full);
 
-        double sunrise_factor = -1.0;
+        float sunrise_factor = -1.0;
 
         if (start_time <= now && now < full_power_time)
         {
@@ -194,8 +197,40 @@ int main()
         status("Avg. loop time:   %lld us\n", perf.average_loop_time);
         status("loops_per_second: %.3f\n", perf.loops_per_second);
 
+        led_color_t* colors = (led_color_t*)calloc(LED_PIXEL_COUNT, sizeof(led_color_t));
+
+        srandom(0);
+        int off = time_us_64() / (MICROSECONDS_PER_SECOND / 5);
+
+        for (int i = 0; i < LED_PIXEL_COUNT; i++)
+        {
+            if (i % 5 == 0)
+                colors[(off + i) % LED_PIXEL_COUNT].r = random() >> 25;
+            if (i % 5 == 1)
+                colors[(off + i) % LED_PIXEL_COUNT].g = random() >> 25;
+            if (i % 5 == 2)
+                colors[(off + i) % LED_PIXEL_COUNT].b = random() >> 25;
+            if (i % 5 == 3)
+                colors[(off + i) % LED_PIXEL_COUNT].w = random() >> 25;
+            if (i % 5 == 4)
+                colors[(off + i) % LED_PIXEL_COUNT].w = random() >> 27;
+        }
+
+        led_swizzle_config_t led_config = {};
+        led_config.byte_pos_r = LED_BYTE_POS_R;
+        led_config.byte_pos_g = LED_BYTE_POS_G;
+        led_config.byte_pos_b = LED_BYTE_POS_B;
+        led_config.byte_pos_w = LED_BYTE_POS_W;
+
+        led_push(colors, LED_PIXEL_COUNT, led_config);
+
+        free(colors);
+
         perf.end_loop();
         sleep_ms(1);
     }
+
+    led_shutdown();
+
     return 0;
 }

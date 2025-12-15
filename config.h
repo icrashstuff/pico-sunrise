@@ -31,6 +31,23 @@
  */
 #pragma once
 
+/** Number of pixels */
+#define LED_PIXEL_COUNT 144
+/** Pixel hardware supports a white color component */
+#define LED_IS_RGBW true
+/** GPIO pin for datastream output */
+#define LED_GPIO 2
+/** Datastream frequency (800kHz default) */
+#define LED_FREQUENCY 800000
+/** Position of red color component in datastream */
+#define LED_BYTE_POS_R 2
+/** Position of green color component in datastream */
+#define LED_BYTE_POS_G 3
+/** Position of blue color component in datastream */
+#define LED_BYTE_POS_B 1
+/** Position of white color component in datastream */
+#define LED_BYTE_POS_W 0
+
 /**
  * UART port associated with @ref GPS_UART_TX_PIN and @ref GPS_UART_RX_PIN
  * @sa GPS_UART_TX_PIN
@@ -63,7 +80,7 @@
  *
  * @warning Disables GPS time sync
  */
-#define SUNRISE_TESTING 0
+#define SUNRISE_TESTING 1
 
 /**
  * Minimum number of microseconds between each successive printing of program status
