@@ -56,11 +56,13 @@ gps_data_t gps_data = {};
 static void gps_write_nmea(const char* fmt, ...) __printflike(1, 0);
 static void gps_write_nmea(const char* fmt, ...)
 {
-    char buf[512] = "$";
+    char* buf = (char*)malloc(sizeof(char) * 512);
+    buf[0] = '$';
+    buf[1] = '\0';
     va_list args;
     va_start(args, fmt);
     int rc = vsnprintf(buf + strlen(buf), arraysizeof(buf) - strlen(buf), fmt, args);
-    assert(rc >= 0);
+    hard_assert(rc >= 0);
     va_end(args);
 
     uint8_t checksum = 0;
@@ -69,6 +71,8 @@ static void gps_write_nmea(const char* fmt, ...)
     snprintf(buf + strlen(buf), arraysizeof(buf) - strlen(buf), "*%02X\r\n", checksum);
 
     uart_write_blocking(GPS_UART_ID, (uint8_t*)buf, strlen(buf));
+
+    free(buf);
 }
 
 void gps_set_config()
