@@ -84,7 +84,7 @@ static void check_dst()
     verify_time(datetime_t((1741518000) * MICROSECONDS_PER_SECOND).get_tz_corrected(offset_st, offset_dt), datetime_t(2025, 3, 9, 3, 0, 0));
 }
 
-static int status_impl_dummy_func(const char* fmt, va_list vlist) { return 0; }
+static int status_impl_dummy_func(const char*, va_list) { return 0; }
 
 static int (*status_impl)(const char* fmt, va_list vlist) = vprintf;
 
