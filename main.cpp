@@ -52,6 +52,7 @@
 #include "gps.h"
 #include "led.h"
 #include "license_text.h"
+#include "sunrise.h"
 
 #define arraysizeof(array) (sizeof(array) / sizeof(array[0]))
 
@@ -199,22 +200,7 @@ int main()
 
         led_color_t* colors = (led_color_t*)calloc(LED_PIXEL_COUNT, sizeof(led_color_t));
 
-        srandom(0);
-        int off = time_us_64() / (MICROSECONDS_PER_SECOND / 5);
-
-        for (int i = 0; i < LED_PIXEL_COUNT; i++)
-        {
-            if (i % 5 == 0)
-                colors[(off + i) % LED_PIXEL_COUNT].r = random() >> 25;
-            if (i % 5 == 1)
-                colors[(off + i) % LED_PIXEL_COUNT].g = random() >> 25;
-            if (i % 5 == 2)
-                colors[(off + i) % LED_PIXEL_COUNT].b = random() >> 25;
-            if (i % 5 == 3)
-                colors[(off + i) % LED_PIXEL_COUNT].w = random() >> 25;
-            if (i % 5 == 4)
-                colors[(off + i) % LED_PIXEL_COUNT].w = random() >> 27;
-        }
+        sunrise_apply(sunrise_factor, LED_WHITE_COLOR_TEMP, colors, LED_PIXEL_COUNT);
 
         led_swizzle_config_t led_config = {};
         led_config.byte_pos_r = LED_BYTE_POS_R;

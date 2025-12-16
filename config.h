@@ -35,6 +35,8 @@
 #define LED_PIXEL_COUNT 144
 /** Pixel hardware supports a white color component */
 #define LED_IS_RGBW true
+/** Tungsten color temperature (in kelvin) for the white color component */
+#define LED_WHITE_COLOR_TEMP 3000
 /** GPIO pin for datastream output */
 #define LED_GPIO 2
 /** Datastream frequency (800kHz default) */
@@ -80,7 +82,7 @@
  *
  * @warning Disables GPS time sync
  */
-#define SUNRISE_TESTING 1
+#define SUNRISE_TESTING 0
 
 /**
  * Minimum number of microseconds between each successive printing of program status

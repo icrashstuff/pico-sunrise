@@ -31,6 +31,7 @@ add_executable(pico-sunrise
     main.cpp
     gps.cpp
     led.cpp
+    sunrise.cpp
     loop_measurer.cpp
     datetime.cpp
     unix_time.cpp
