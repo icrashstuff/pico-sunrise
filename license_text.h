@@ -19,7 +19,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.)";
 
-static const char* license_text_pico_sdk = R"(Copyright 2020-2025 (c) 2025 Raspberry Pi (Trading) Ltd.
+static const char* license_text_pico_sdk_and_pico_examples = R"(Copyright 2020-2025 (c) 2020-2025 Raspberry Pi (Trading) Ltd.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
 following conditions are met:

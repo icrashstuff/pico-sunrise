@@ -166,8 +166,8 @@ int main()
         status("\n======> License text (pico-sunrise)\n");
         status("%s", license_text_pico_sunrise);
 
-        status("\n======> License text (pico-sdk)\n");
-        status("%s", license_text_pico_sdk);
+        status("\n======> License text (pico-sdk and pico-examples)\n");
+        status("%s", license_text_pico_sdk_and_pico_examples);
 
         status("\n======> GPS Status\n");
         status("Firmware release:    %s\n", gps_data.firmware_release_str);
