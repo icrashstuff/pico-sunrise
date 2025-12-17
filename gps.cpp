@@ -28,10 +28,6 @@
  * @endparblock
  *
  * @brief GPS time synchronization (Implementation)
- *
- * @bug Because @ref gps_write_nmea() calls @ref uart_write_blocking() some
- *      packets from the device may be missed, however I don't feel like fixing
- *      this because no important information is lost that won't get re-sent
  */
 
 #include "gps.h"
@@ -47,6 +43,22 @@
 #define arraysizeof(array) (sizeof(array) / sizeof(array[0]))
 
 gps_data_t gps_data = {};
+
+static void gps_handle_character(const uint8_t c);
+
+/**
+ * Version of uart_write_blocking() that switches to reading and then handling characters only when the TX FIFO is full
+ */
+static void gps_uart_write_blocking(uart_inst_t* uart, const uint8_t* src, size_t len)
+{
+    for (size_t i = 0; i < len; ++i)
+    {
+        while (!uart_is_writable(uart))
+            if (uart_is_readable(uart))
+                gps_handle_character(uart_getc(uart));
+        uart_get_hw(uart)->dr = *src++;
+    }
+}
 
 /**
  * Send a NMEA message to the GPS module
@@ -71,7 +83,15 @@ static void gps_write_nmea(const char* fmt, ...)
         checksum = checksum ^ buf[i];
     snprintf(buf + strlen(buf), BUF_SIZE - strlen(buf), "*%02X\r\n", checksum);
 
-    uart_write_blocking(GPS_UART_ID, (uint8_t*)buf, strlen(buf));
+    /* Flush any data from the RX buffer now */
+    while (uart_is_readable(GPS_UART_ID))
+        gps_handle_character(uart_getc(GPS_UART_ID));
+
+    gps_uart_write_blocking(GPS_UART_ID, (uint8_t*)buf, strlen(buf));
+
+    /* Flush any data from the RX buffer now */
+    while (uart_is_readable(GPS_UART_ID))
+        gps_handle_character(uart_getc(GPS_UART_ID));
 
     free(buf);
 }
@@ -212,6 +232,27 @@ static void end_of_sentence()
     }
 }
 
+/**
+ * Handle a received character
+ */
+static void gps_handle_character(const uint8_t c)
+{
+    if (GPS_ECHO)
+        stdio_putchar(c);
+
+    if (c == '$')
+    {
+        memset(gps_data.nmea_in_progress, 0, sizeof(gps_data.nmea_in_progress));
+        gps_data.nmea_in_progress_len = 0;
+    }
+
+    if (gps_data.nmea_in_progress_len < sizeof(gps_data.nmea_in_progress) - 1)
+        gps_data.nmea_in_progress[gps_data.nmea_in_progress_len++] = c;
+
+    if (c == '\n')
+        end_of_sentence();
+}
+
 void gps_loop()
 {
     if (time_reached(gps_data.next_config_sync))
@@ -220,24 +261,7 @@ void gps_loop()
         gps_data.next_config_sync = from_us_since_boot(time_us_64() + MICROSECONDS_PER_SECOND * 5);
     }
     while (uart_is_readable(GPS_UART_ID))
-    {
-        uint8_t c = uart_getc(GPS_UART_ID);
-
-        if (GPS_ECHO)
-            stdio_putchar(c);
-
-        if (c == '$')
-        {
-            memset(gps_data.nmea_in_progress, 0, sizeof(gps_data.nmea_in_progress));
-            gps_data.nmea_in_progress_len = 0;
-        }
-
-        if (gps_data.nmea_in_progress_len < sizeof(gps_data.nmea_in_progress) - 1)
-            gps_data.nmea_in_progress[gps_data.nmea_in_progress_len++] = c;
-
-        if (c == '\n')
-            end_of_sentence();
-    }
+        gps_handle_character(uart_getc(GPS_UART_ID));
 
     gps_data.perf.end_loop();
 }
