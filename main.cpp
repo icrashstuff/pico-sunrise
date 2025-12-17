@@ -88,7 +88,10 @@ static int status_impl_dummy_func(const char*, va_list) { return 0; }
 
 static int (*status_impl)(const char* fmt, va_list vlist) = vprintf;
 
-static __printflike(1, 0) int status(const char* fmt, ...)
+#if defined(__GNUC__) || defined(__clang__)
+#define formatting_attribute(fmtargnumber) __attribute__((format(__printf__, fmtargnumber, fmtargnumber + 1)))
+#endif
+static formatting_attribute(1) int status(const char* fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
