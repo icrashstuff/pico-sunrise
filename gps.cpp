@@ -263,6 +263,7 @@ void gps_loop()
     while (uart_is_readable(GPS_UART_ID))
         gps_handle_character(uart_getc(GPS_UART_ID));
 
+    gps_data.watchdog_expiry_time = from_us_since_boot(time_us_64() + WATCHDOG_GPS_TIME * 1000);
     gps_data.perf.end_loop();
 }
 

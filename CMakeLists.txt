@@ -52,6 +52,7 @@ target_link_libraries(pico-sunrise PRIVATE pico_stdlib)
 target_link_libraries(pico-sunrise PRIVATE pico_malloc)
 target_link_libraries(pico-sunrise PRIVATE pico_multicore)
 target_link_libraries(pico-sunrise PRIVATE hardware_pio)
+target_link_libraries(pico-sunrise PRIVATE hardware_watchdog)
 
 
 if (TARGET tinyusb_device)

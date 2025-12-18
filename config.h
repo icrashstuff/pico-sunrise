@@ -31,6 +31,10 @@
  */
 #pragma once
 
+/******************************************************
+ *                     LED CONFIG                     *
+ ******************************************************/
+
 /** Number of pixels */
 #define LED_PIXEL_COUNT 144
 /** Pixel hardware supports a white color component */
@@ -49,6 +53,10 @@
 #define LED_BYTE_POS_B 1
 /** Position of white color component in datastream */
 #define LED_BYTE_POS_W 0
+
+/******************************************************
+ *                     GPS CONFIG                     *
+ ******************************************************/
 
 /**
  * UART port associated with @ref GPS_UART_TX_PIN and @ref GPS_UART_RX_PIN
@@ -72,10 +80,31 @@
 /** GPIO pin for GPS UART receive @sa GPS_UART_ID*/
 #define GPS_UART_RX_PIN 5
 
+/******************************************************
+ *                  TIMEZONE CONFIG                   *
+ ******************************************************/
+
 /** Timezone offset during daylight savings time */
 #define TIMEZONE_OFFSET_DT timespan_t(0, -8, 0, 0)
 /** Timezone offset during standard time */
 #define TIMEZONE_OFFSET_ST timespan_t(0, -9, 0, 0)
+
+/******************************************************
+ *                  WATCHDOG CONFIG                   *
+ ******************************************************/
+
+/** Watchdog delay in milliseconds for core 0 init until main loop */
+#define WATCHDOG_INIT_TIME 5000
+
+/** Watchdog delay in milliseconds for core 0 main loop */
+#define WATCHDOG_LOOP_TIME 250
+
+/** Maximum time in milliseconds that the GPS thread can hang before the watchdog is unhappy */
+#define WATCHDOG_GPS_TIME 250
+
+/******************************************************
+ *                    MISC. CONFIG                    *
+ ******************************************************/
 
 /**
  * Changes time offsets so that sunrise blending can easily be tested

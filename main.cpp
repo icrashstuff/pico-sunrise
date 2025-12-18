@@ -42,6 +42,7 @@
  * @ref config.h
  */
 
+#include "hardware/watchdog.h"
 #include "pico/multicore.h"
 #include "pico/stdlib.h"
 #include <stdint.h>
@@ -102,6 +103,8 @@ static formatting_attribute(1) int status(const char* fmt, ...)
 
 int main()
 {
+    watchdog_enable(WATCHDOG_INIT_TIME, 1);
+
     init_unix_time();
 
     stdio_init_all();
@@ -121,8 +124,17 @@ int main()
     uint64_t last_status_time = 0;
     loop_measure_t perf = {};
 
+    watchdog_disable();
+    watchdog_enable(WATCHDOG_LOOP_TIME, 1);
+
     while (true)
     {
+#if SUNRISE_TESTING == 0
+        if (!time_reached(gps_data.watchdog_expiry_time))
+            watchdog_update();
+#else
+        watchdog_update();
+#endif
         const uint64_t loop_start_time = time_us_64();
 
         if (loop_start_time / STATUS_PRINT_INTERVAL != last_status_time / STATUS_PRINT_INTERVAL)

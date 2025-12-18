@@ -75,8 +75,11 @@ struct gps_data_t
     char firmware_internal_1[256];
     char firmware_internal_2[256];
 
-    /* Time to reach before gps_loop() will call gps_set_config() */
+    /** Time to reach before gps_loop() will call gps_set_config() */
     absolute_time_t next_config_sync;
+
+    /** If this time is reached then that indicates a hang for the GPS thread */
+    absolute_time_t watchdog_expiry_time;
 
     char nmea_last_full[512]; /**< Last fully received sentence */
     size_t nmea_last_full_len; /**< Length of `nmea_last_full` */
