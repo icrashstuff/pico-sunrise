@@ -188,6 +188,8 @@ int main()
         status("Firmware internal 2: %s\n", gps_data.firmware_internal_2);
         status("Avg. loop time:   %lld us\n", gps_data.perf.average_loop_time);
         status("loops_per_second: %.3f\n", gps_data.perf.loops_per_second);
+        status("Satellites used:  %d\n", gps_data.satellites_used);
+        status("Fix status:       %d\n", gps_data.fix_status);
         status("NMEA Parsing: %s\n", gps_data.nmea_in_progress);
         status("NMEA Last:    %s\n", gps_data.nmea_last_full);
 

@@ -101,8 +101,8 @@ void gps_set_config()
     /* Set update frequency to 2Hz */
     gps_write_nmea("PMTK220,500");
 
-    /* Disable all NMEA sentences except NMEA_SEN_ZDA (Time & Date) */
-    gps_write_nmea("PMTK314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0");
+    /* Disable all NMEA sentences except NMEA_SEN_GGA (GPS Fix Data) and NMEA_SEN_ZDA (Time & Date) */
+    gps_write_nmea("PMTK314,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0");
 
     /* Query release information */
     gps_write_nmea("PMTK605");
@@ -126,6 +126,8 @@ void gps_init()
         printf("Waiting for GPS to become readable!\n");
         sleep_ms(50);
     }
+
+    gps_data.fix_status = GPS_NO_FIX;
 
     gps_data.next_config_sync = from_us_since_boot(0);
 
@@ -162,6 +164,8 @@ static bool is_valid_nmea_sentence(const char* sentence, size_t len)
     return true;
 }
 
+#define SENTENCE_ID_IS(ID) (strncmp(gps_data.nmea_last_full, "$" ID, sizeof(ID)) == 0)
+
 static void end_of_sentence()
 {
     if (!is_valid_nmea_sentence(gps_data.nmea_in_progress, gps_data.nmea_in_progress_len))
@@ -177,60 +181,107 @@ static void end_of_sentence()
     memset(gps_data.nmea_in_progress, 0, sizeof(gps_data.nmea_in_progress));
     gps_data.nmea_in_progress_len = 0;
 
-    datetime_t t = datetime_t(1971, 1, 1);
+    char* const field_data = (char*)malloc((gps_data.nmea_last_full_len + 4) * sizeof(char));
+    char** const argv = (char**)malloc((gps_data.nmea_last_full_len + 4) * sizeof(char*));
+    int argc = 0;
 
-    /* GPZDA - Date & Time */
-    if (sscanf(
-            gps_data.nmea_last_full, "$GPZDA,%02lld%02lld%02lld.%lld,%lld,%lld,%lld,", &t.hour, &t.minute, &t.second, &t.microsecond, &t.day, &t.month, &t.year)
-        == 7)
+    for (size_t i = 0; i < gps_data.nmea_last_full_len; i++)
     {
+        switch (gps_data.nmea_last_full[i])
+        {
+        case '\r':
+        case '\n':
+            break;
+        case '$':
+        case ',':
+        case '*':
+            field_data[i] = '\0';
+            field_data[i + 1] = '\0';
+            argv[argc++] = field_data + i + 1;
+            break;
+        default:
+            field_data[i] = gps_data.nmea_last_full[i];
+            field_data[i + 1] = '\0';
+            break;
+        }
+    }
 
+    if (argc < 1)
+    {
+        free(field_data);
+        free(argv);
+        return;
+    }
+
+    /* GPGGA - GPS Fix Data
+     * 0: ID
+     * 1: UTC Time: hhmmss.sss
+     * 2: Latitude: ddmm.mmmm
+     * 3: Latitude [N: North, S: South]
+     * 4: Longitude: ddmm.mmmm
+     * 5: Longitude: [E: East, W: West]
+     * 6: Fix status: [0: No Fix, 1: Has Fix, 2: Differential GPS Fix]
+     * 7: Satellites Used
+     * 8: Horizontal dilution of precision
+     * 9: Antenna altitude (Mean-sea-level)
+     * 10: Antenna altitude Units (Mean-sea-level)
+     * 11: Geoidal separation
+     * 12: Geoidal separation units
+     * 13: Age of differential correction data (seconds) (Empty if no differential data available)
+     * 14: Differential station ID (Empty if no differential data available)
+     * 15: Checksum
+     */
+    if (strcmp(argv[0], "GPGGA") == 0 && argc == 16)
+    {
+        gps_data.fix_status = static_cast<gps_fix_status_t>(strtol(argv[6], NULL, 10));
+        gps_data.satellites_used = strtol(argv[7], NULL, 10);
+    }
+
+    /* GPZDA - Date & Time
+     * 0: ID
+     * 1: UTC Time: hhmmss.sss
+     * 2: UTC Day
+     * 3: UTC Month
+     * 4: UTC Year
+     * 5: Local zone description (Usually empty)
+     * 6: Local zone minutes description (Usually empty)
+     * 7: Checksum
+     */
+    if (strcmp(argv[0], "GPZDA") == 0 && argc == 8)
+    {
+        datetime_t t = datetime_t(1971, 1, 1);
+
+        sscanf(argv[1], "%02lld%02lld%02lld.%lld", &t.hour, &t.minute, &t.second, &t.microsecond);
         t.microsecond *= 1000;
+
+        t.day = strtol(argv[2], NULL, 10);
+        t.month = strtol(argv[3], NULL, 10);
+        t.year = strtol(argv[4], NULL, 10);
 
         set_unix_time(t.to_microseconds_since_1970());
     }
 
-    /* PMTK_DT_RELEASE - Firmware release information */
-    if (strncmp(gps_data.nmea_last_full, "$PMTK705", 8) == 0)
+    /* PMTK_DT_RELEASE - Firmware release information
+     * 0: ID
+     * 1: Release string
+     * 2: Build ID
+     * 3: Internal use string 1
+     * 4: Internal use string 2
+     * 5: Checksum
+     */
+    if (strcmp(argv[0], "PMTK705") == 0 && (argc == 5 || argc == 6))
     {
-        int current_delim = 0;
-        int current_len = 0;
-        char* out = nullptr;
-        for (size_t i = 0; i < gps_data.nmea_last_full_len; i++)
-        {
-            const char c = gps_data.nmea_last_full[i];
-            if (c == ',')
-            {
-                if (out)
-                    out[current_len] = '\0';
-                current_len = 0;
-                current_delim++;
-                switch (current_delim)
-                {
-                case 1:
-                    out = gps_data.firmware_release_str;
-                    break;
-                case 2:
-                    out = gps_data.firmware_build_id;
-                    break;
-                case 3:
-                    out = gps_data.firmware_internal_1;
-                    break;
-                case 4:
-                    out = gps_data.firmware_internal_2;
-                    break;
-                default:
-                    out = nullptr;
-                    break;
-                }
-            }
-            else if (c == '*')
-                break;
-            else
-                out[current_len++] = c;
-        }
+        strcpy(gps_data.firmware_release_str, argv[1]);
+        strcpy(gps_data.firmware_build_id, argv[2]);
+        strcpy(gps_data.firmware_internal_1, argv[3]);
+        if (argc == 6)
+            strcpy(gps_data.firmware_internal_2, argv[4]);
     }
+
+    free(field_data);
+    free(argv);
 }
+#undef SENTENCE_ID_IS
 
 /**
  * Handle a received character

@@ -63,6 +63,13 @@ void gps_init();
  */
 void gps_loop();
 
+enum gps_fix_status_t : int
+{
+    GPS_NO_FIX,
+    GPS_HAS_FIX,
+    GPS_DIFFERENTIAL_FIX
+};
+
 /**
  * GPS module internal data
  *
@@ -74,6 +81,10 @@ struct gps_data_t
     char firmware_build_id[256];
     char firmware_internal_1[256];
     char firmware_internal_2[256];
+
+    gps_fix_status_t fix_status;
+
+    int satellites_used;
 
     /** Time to reach before gps_loop() will call gps_set_config() */
     absolute_time_t next_config_sync;
