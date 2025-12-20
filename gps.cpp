@@ -164,8 +164,6 @@ static bool is_valid_nmea_sentence(const char* sentence, size_t len)
     return true;
 }
 
-#define SENTENCE_ID_IS(ID) (strncmp(gps_data.nmea_last_full, "$" ID, sizeof(ID)) == 0)
-
 static void end_of_sentence()
 {
     if (!is_valid_nmea_sentence(gps_data.nmea_in_progress, gps_data.nmea_in_progress_len))
