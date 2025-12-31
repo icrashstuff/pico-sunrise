@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "sunrise")(type "KiCad")(uri "${KIPRJMOD}/sunrise.kicad_sym")(options "")(descr ""))
+)
