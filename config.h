@@ -42,7 +42,7 @@
 /** Tungsten color temperature (in kelvin) for the white color component */
 #define LED_WHITE_COLOR_TEMP 3000
 /** GPIO pin for datastream output */
-#define LED_GPIO 2
+#define LED_GPIO 26
 /** Datastream frequency (800kHz default) */
 #define LED_FREQUENCY 800000
 /** Position of red color component in datastream */
