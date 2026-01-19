@@ -233,7 +233,6 @@ int main()
         free(colors);
 
         perf.end_loop();
-        sleep_ms(1);
     }
 
     led_shutdown();
