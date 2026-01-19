@@ -46,7 +46,7 @@
 /**
  * Datastream frequency (800kHz is almost guaranteed to work)
  *
- * I have successfully used SK6812RGBW leds at 1100kHZ in my setup, but your mileage may vary - Ian
+ * I have successfully used SK6812RGBW leds at 1100kHz in my setup, but your mileage may vary - Ian
  */
 #define LED_FREQUENCY (1100 * 1000)
 
@@ -128,11 +128,14 @@
 #define SUNRISE_TESTING 0
 
 /**
- * Number of cycles for brightness dithering
+ * Target dither loops per second (in Hz) (24-60 are good values)
+ *
+ * Low values (< 24) could cause noticeable flickering
+ * High values could cause transitions between brightness levels to be noticeable
  *
  * (Smooths transition between brightness levels)
  */
-#define DITHER_NOISE_CYCLE_COUNT 3
+#define DITHER_NOISE_TARGET_FREQUENCY 48
 
 /**
  * Minimum number of microseconds between each successive printing of program status

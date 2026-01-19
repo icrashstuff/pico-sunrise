@@ -206,6 +206,9 @@ int main()
         if (full_power_time <= now && now < off_forced_time)
             sunrise_factor = 1.0;
 
+        int dither_steps_possible = perf.loops_per_second / float(DITHER_NOISE_TARGET_FREQUENCY);
+        dither_steps_possible = dither_steps_possible < 1 ? 1 : dither_steps_possible;
+
         status("\n======> Sunrise status\n");
         status("Current time:     %s\n", now.print_to_buffer(buf, arraysizeof(buf)));
         status("Midnight:         %s\n", midnight.print_to_buffer(buf, arraysizeof(buf)));
@@ -216,11 +219,13 @@ int main()
         status("sunrise_factor:   %f\n", sunrise_factor);
         status("Avg. loop time:   %lld us\n", perf.average_loop_time);
         status("loops_per_second: %.3f\n", perf.loops_per_second);
+        status("Dither loops/sec: %.3f\n", perf.loops_per_second / float(dither_steps_possible));
+        status("Dither cycles:    %d\n", dither_steps_possible);
 
         led_color_t* colors = (led_color_t*)calloc(LED_PIXEL_COUNT, sizeof(led_color_t));
 
-        sunrise_apply(float(dither_count) / float(DITHER_NOISE_CYCLE_COUNT), sunrise_factor, LED_WHITE_COLOR_TEMP, colors, LED_PIXEL_COUNT);
-        ++dither_count %= DITHER_NOISE_CYCLE_COUNT;
+        ++dither_count %= dither_steps_possible;
+        sunrise_apply(float(dither_count) / float(dither_steps_possible), sunrise_factor, LED_WHITE_COLOR_TEMP, colors, LED_PIXEL_COUNT);
 
         led_swizzle_config_t led_config = {};
         led_config.byte_pos_r = LED_BYTE_POS_R;
