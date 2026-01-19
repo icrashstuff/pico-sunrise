@@ -43,8 +43,13 @@
 #define LED_WHITE_COLOR_TEMP 3000
 /** GPIO pin for datastream output */
 #define LED_GPIO 26
-/** Datastream frequency (800kHz default) */
-#define LED_FREQUENCY 800000
+/**
+ * Datastream frequency (800kHz is almost guaranteed to work)
+ *
+ * I have successfully used SK6812RGBW leds at 1100kHZ in my setup, but your mileage may vary - Ian
+ */
+#define LED_FREQUENCY (1100 * 1000)
+
 /** Position of red color component in datastream */
 #define LED_BYTE_POS_R 2
 /** Position of green color component in datastream */
