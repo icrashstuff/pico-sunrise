@@ -36,9 +36,10 @@
 /**
  * Fill led color array with simulated sunrise
  *
+ * @param dither_value Value between [0.f, 1.f) used for dithering (This should have a period of less than 40 ms)
  * @param sunrise_factor Value between [0.f, 1.f] that represents how far the sun has risen
  * @param white_color_temp Tungsten color temperature (in kelvin) for the white color component
  * @param out Array to fill
  * @param num_pixels Length of array to fill
  */
-void sunrise_apply(const float sunrise_factor, uint32_t white_color_temp, led_color_t* out, size_t num_pixels);
+void sunrise_apply(const float dither_value, const float sunrise_factor, uint32_t white_color_temp, led_color_t* out, size_t num_pixels);

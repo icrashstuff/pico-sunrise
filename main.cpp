@@ -127,6 +127,8 @@ int main()
     watchdog_disable();
     watchdog_enable(WATCHDOG_LOOP_TIME, 1);
 
+    uint32_t dither_count = 0;
+
     while (true)
     {
 #if SUNRISE_TESTING == 0
@@ -217,7 +219,8 @@ int main()
 
         led_color_t* colors = (led_color_t*)calloc(LED_PIXEL_COUNT, sizeof(led_color_t));
 
-        sunrise_apply(sunrise_factor, LED_WHITE_COLOR_TEMP, colors, LED_PIXEL_COUNT);
+        sunrise_apply(float(dither_count) / float(DITHER_NOISE_CYCLE_COUNT), sunrise_factor, LED_WHITE_COLOR_TEMP, colors, LED_PIXEL_COUNT);
+        ++dither_count %= DITHER_NOISE_CYCLE_COUNT;
 
         led_swizzle_config_t led_config = {};
         led_config.byte_pos_r = LED_BYTE_POS_R;

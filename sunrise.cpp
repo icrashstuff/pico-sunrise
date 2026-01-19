@@ -140,10 +140,11 @@ static vec3_t get_rgb_from_temp(float temp)
 /**
  * Compute the RGBW led pixel color from a RGB color
  *
+ * @param dither_value Value between [0.f, 1.f) used for dithering (This should have a period of less than 40 ms)
  * @param rgb RGB color to convert
  * @param whitepoint RGB color of the pixel's white component
  */
-static led_color_t compute_led_color(vec3_t rgb, const vec3_t& whitepoint)
+static led_color_t compute_led_color(const float dither_value, vec3_t rgb, const vec3_t& whitepoint)
 {
     rgb.clamp(0.f, 1.f);
 
@@ -152,15 +153,21 @@ static led_color_t compute_led_color(vec3_t rgb, const vec3_t& whitepoint)
      *
      * I don't know how "correct" it is, but it does seem to work reasonably well
      */
-    float w;
-    w = (rgb.r * whitepoint.r + rgb.g * whitepoint.g + rgb.b * whitepoint.b) / 3.f;
-    rgb.clamp(0.f, 1.f);
-    w = _clamp(w, 0.f, 1.f);
+    float white;
+    white = (rgb.r * whitepoint.r + rgb.g * whitepoint.g + rgb.b * whitepoint.b) / 3.f;
 
-    return led_color_t(rgb.r * 255.f, rgb.g * 255.f, rgb.b * 255.f, w * 255.f);
+    rgb.r += dither_value / float(1 << LED_BIT_DEPTH_R);
+    rgb.g += dither_value / float(1 << LED_BIT_DEPTH_G);
+    rgb.b += dither_value / float(1 << LED_BIT_DEPTH_B);
+    white += dither_value / float(1 << LED_BIT_DEPTH_W);
+
+    rgb.clamp(0.f, 1.f);
+    white = _clamp(white, 0.f, 1.f);
+
+    return led_color_t(rgb.r * 255.f, rgb.g * 255.f, rgb.b * 255.f, white * 255.f);
 }
 
-void sunrise_apply(const float sunrise_factor, uint32_t white_color_temp, led_color_t* out, size_t num_pixels)
+void sunrise_apply(const float dither_value, const float sunrise_factor, uint32_t white_color_temp, led_color_t* out, size_t num_pixels)
 {
     if (sunrise_factor < 0)
     {
@@ -190,6 +197,6 @@ void sunrise_apply(const float sunrise_factor, uint32_t white_color_temp, led_co
     for (size_t i = 0; i < num_pixels; i++)
     {
         float f = float(i) / float(num_pixels - 1);
-        out[i] = compute_led_color(_mix(bot, top, f), whitepoint);
+        out[i] = compute_led_color(dither_value, _mix(bot, top, f), whitepoint);
     }
 }

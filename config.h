@@ -59,6 +59,15 @@
 /** Position of white color component in datastream */
 #define LED_BYTE_POS_W 0
 
+/** Bit depth of red color component in datastream */
+#define LED_BIT_DEPTH_R 8
+/** Bit depth of green color component in datastream */
+#define LED_BIT_DEPTH_G 8
+/** Bit depth of blue color component in datastream */
+#define LED_BIT_DEPTH_B 8
+/** Bit depth of white color component in datastream */
+#define LED_BIT_DEPTH_W 8
+
 /******************************************************
  *                     GPS CONFIG                     *
  ******************************************************/
@@ -117,6 +126,13 @@
  * @warning Disables GPS time sync
  */
 #define SUNRISE_TESTING 0
+
+/**
+ * Number of cycles for brightness dithering
+ *
+ * (Smooths transition between brightness levels)
+ */
+#define DITHER_NOISE_CYCLE_COUNT 3
 
 /**
  * Minimum number of microseconds between each successive printing of program status
