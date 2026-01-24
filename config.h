@@ -46,9 +46,10 @@
 /**
  * Datastream frequency (800kHz is almost guaranteed to work)
  *
- * I have successfully used SK6812RGBW leds at 1100kHz in my setup, but your mileage may vary - Ian
+ * In my experience higher frequencies can cause instability in high count led strips
+ * I have successfully used SK6812RGBW-WS leds at 1000kHz in my setup, but your mileage may vary - Ian
  */
-#define LED_FREQUENCY (1100 * 1000)
+#define LED_FREQUENCY (1000 * 1000)
 
 /** Position of red color component in datastream */
 #define LED_BYTE_POS_R 2
