@@ -186,17 +186,14 @@ void sunrise_apply(const float dither_value, const float sunrise_factor, uint32_
      */
     float target_color_temp_top = target_color_temp_bot + sin(sunrise_factor * PI) * sin(sunrise_factor * PI) * 300.f;
 
-    vec3_t bot = get_rgb_from_temp(target_color_temp_bot);
-    vec3_t top = get_rgb_from_temp(target_color_temp_top);
-
     float brightness = sunrise_factor * 2.f;
     brightness = _clamp(brightness, 0.f, 1.f);
-    bot *= brightness;
-    top *= brightness;
 
     for (size_t i = 0; i < num_pixels; i++)
     {
-        float f = float(i) / float(num_pixels - 1);
-        out[i] = compute_led_color(dither_value, _mix(bot, top, f), whitepoint);
+        float blend_factor = float(i) / float(num_pixels - 1);
+        float color_temp = _mix(target_color_temp_bot, target_color_temp_top, blend_factor);
+        vec3_t color = get_rgb_from_temp(color_temp);
+        out[i] = compute_led_color(dither_value, color * brightness, whitepoint);
     }
 }
