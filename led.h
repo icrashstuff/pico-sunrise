@@ -39,13 +39,13 @@
 struct led_color_t
 {
     inline led_color_t() { }
-    inline led_color_t(const int8_t _r, const int8_t _g, const int8_t _b) { r = _r, g = _g, b = _b; }
-    inline led_color_t(const int8_t _r, const int8_t _g, const int8_t _b, const int8_t _w) { r = _r, g = _g, b = _b, w = _w; }
+    inline led_color_t(const uint8_t _r, const uint8_t _g, const uint8_t _b) { r = _r, g = _g, b = _b; }
+    inline led_color_t(const uint8_t _r, const uint8_t _g, const uint8_t _b, const uint8_t _w) { r = _r, g = _g, b = _b, w = _w; }
 
-    int8_t r = 0;
-    int8_t g = 0;
-    int8_t b = 0;
-    int8_t w = 0;
+    uint8_t r = 0;
+    uint8_t g = 0;
+    uint8_t b = 0;
+    uint8_t w = 0;
 };
 
 struct led_swizzle_config_t
